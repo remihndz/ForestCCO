@@ -77,6 +77,36 @@ class CompetingOptimizedArterialTrees : public Forest {
                                   double radiusExpoent, double lengthExpoent);
 
   /**
+   * @brief Construct a new Competing Optimized Arterial Trees object.
+   * 
+   * @param domain The domain.
+   * @param trees The vector of trees.
+   * @param numberOfTrees The number of trees.
+   * @param numberOfTerminals The number of terminals.
+   * @param firstStage The percentage of the target flow to be attained at
+   * the first stage.
+   * @param targetPerfusionFlow The vector of target perfusion flows.
+   * @param radiusExpoent The expoent for the segment radius on target
+   * function expression. 
+   * @param lengthExpoent The expoent for the segment length on target
+   * function expression.
+   * @param degreeOfSymmetry The minimum degree of symmetry allowed
+   * at bifurcations.
+   * @param minimumAngle The minimum angle between descendents.
+   * @param maximumAngle The maximum angle between descendents.
+   */
+  CompetingOptimizedArterialTrees(Domain *domain, TreeModel **trees,
+                                  int numberOfTrees, int numberOfTerminals,
+                                  double firstStage,
+                                  double *targetPerfusionFlow,
+                                  double radiusExpoent, double lengthExpoent,
+				  double degreeOfSymmetry,
+				  double minimumAngle,
+				  double maximumAngle);
+  
+
+
+  /**
    * @brief Destroy the Competing Optimized Arterial Trees object.
    * 
    */

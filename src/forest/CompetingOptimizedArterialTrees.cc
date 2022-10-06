@@ -107,6 +107,88 @@ CompetingOptimizedArterialTrees::CompetingOptimizedArterialTrees(
   }
 }
 
+CompetingOptimizedArterialTrees::CompetingOptimizedArterialTrees(
+    Domain *domain, TreeModel **trees, int numberOfTrees, int numberOfTerminals,
+    double firstStage, double *targetPerfusionFlow, double radiusExpoent,
+    double lengthExpoent, double degreeOfSymmetry, double minimumAngle,
+    double maximumAngle)
+    : Forest(domain, trees, numberOfTrees, numberOfTerminals,
+             targetPerfusionFlow, radiusExpoent, lengthExpoent) {
+  int i, t, intervalDivision = 5;
+  double distanceClosestNeighbor, d;
+  Geometry geometry(domain->dimension());
+  _firstStage = firstStage;
+  _largestTreePerfusionFlow = 0;
+  _closestNeighbor = new int[_numberOfTrees];
+  _targetPerfusionFlow = targetPerfusionFlow;
+  _targetRelativeFlow = new double[_numberOfTrees];
+  _currentRelativeFlow = new double[_numberOfTrees];
+  _maximumRootLength = new double[_numberOfTrees];
+  _active = new bool[_numberOfTrees];
+  _distanceCriterion = new DistanceCriterion *[1];
+  _terminalFlowFunction = new TerminalFlowFunction *[_numberOfTrees];
+  _targetFunction = new TargetFunction *[_numberOfTrees];
+  _geometricOptimization = new GeometricOptimization *[_numberOfTrees];
+
+  _distanceCriterion[0] = new ClassicDistanceCriterion(_trees[0]);
+  for (t = 0; t < _numberOfTrees; t++) {
+    _active[t] = true;
+
+    /* Default functions */
+    _terminalFlowFunction[t] = new ForestConstantTerminalFlow(
+        _trees, numberOfTrees, numberOfTerminals);
+    _targetFunction[t] =
+        new TargetVolume(_trees[t], _radiusExpoent, _lengthExpoent);
+    _geometricOptimization[t] = new SimpleOptimization(
+        _domain, _trees[t], _targetFunction[t], intervalDivision,
+	degreeOfSymmetry, minimumAngle, maximumAngle);
+
+    if (_targetPerfusionFlow[t] >
+        _targetPerfusionFlow[_largestTreePerfusionFlow]) {
+      _largestTreePerfusionFlow = t;
+    }
+
+    _closestNeighbor[t] = (t + 1 < _numberOfTrees) ? t + 1 : 0;
+  }
+
+  if (_numberOfTrees == 1) {
+    _targetRelativeFlow[0] = 1.0;
+    if (_domain->dimension() == 2) {
+      _maximumRootLength[0] = sqrt(_trees[0]->perfusionVolume() /
+                                   (_trees[0]->numberOfTerminals() * M_PI));
+    } else {
+      _maximumRootLength[0] =
+          cbrt(3.0 * _trees[0]->perfusionVolume() /
+               (4.0 * _trees[0]->numberOfTerminals() * M_PI));
+    }
+  } else {
+    for (t = 0; t < _numberOfTrees; t++) {
+      _targetRelativeFlow[t] = _targetPerfusionFlow[t] /
+                               _targetPerfusionFlow[_largestTreePerfusionFlow];
+      for (i = 0; i < _numberOfTrees; i++) {
+        if (t != i) {
+          distanceClosestNeighbor = geometry.distance(
+              _trees[t]->seed(), _trees[_closestNeighbor[t]]->seed());
+          d = geometry.distance(_trees[t]->seed(), _trees[i]->seed());
+          if ((d < distanceClosestNeighbor) ||
+              (d == distanceClosestNeighbor &&
+               _targetPerfusionFlow[i] <
+                   _targetPerfusionFlow[_closestNeighbor[t]])) {
+            _closestNeighbor[t] = i;
+          }
+        }
+      }
+
+      _maximumRootLength[t] =
+          geometry.distance(_trees[t]->seed(),
+                            _trees[_closestNeighbor[t]]->seed()) *
+          _targetPerfusionFlow[t] /
+          (_targetPerfusionFlow[_closestNeighbor[t]] + _targetPerfusionFlow[t]);
+    }
+  }
+}
+
+
 void CompetingOptimizedArterialTrees::growRoot() {
   int t;
   Geometry geometry(_domain->dimension());
