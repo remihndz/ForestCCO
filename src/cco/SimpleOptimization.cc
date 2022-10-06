@@ -64,6 +64,29 @@ SimpleOptimization::SimpleOptimization(Domain *domain, TreeModel *tree,
                            numberOfGeometricRestrictions);
 }
 
+SimpleOptimization::SimpleOptimization(Domain *domain, TreeModel *tree,
+				       TargetFunction *targetFunction, int intervalDivision,
+				       double degreeOfSymmetry,
+				       double minimumAngle,
+				       double maximumAngle)
+    : GeometricOptimization(domain, tree, targetFunction) {
+  int numberOfGeometricRestrictions = 3;
+  _degreeOfSymmetry = degreeOfSymmetry;
+  _geometry = new Geometry(domain->dimension());
+  _intervalDivision = intervalDivision;
+  _targetFunction = targetFunction;
+  _minimumAngle = minimumAngle;
+  _maximumAngle = maximumAngle;
+  GeometricRestriction **_geometricRestrictions =
+    new GeometricRestriction *[numberOfGeometricRestrictions];
+  _geometricRestrictions[0] = new ValidSegment(tree);
+  _geometricRestrictions[1] = new BifurcationSymmetry(tree, _degreeOfSymmetry);
+  _geometricRestrictions[2] = new ValidAngle(tree, _minimumAngle, _maximumAngle);
+  setGeometricRestrictions(_geometricRestrictions,
+                           numberOfGeometricRestrictions);
+}
+  
+
 Connection SimpleOptimization::bifurcation(Segment segment) {
   int i, j, newSegment = segment.right(), connectionSegment = segment.left(),
             numberOfPoints = _intervalDivision + 1, line, column;

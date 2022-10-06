@@ -34,6 +34,7 @@
 #include "BifurcationSymmetry.h"
 #include "TargetVolume.h"
 #include "ValidSegment.h"
+#include "ValidAngle.h"
 #include "geometry/Geometry.h"
 #include "interface/GeometricOptimization.h"
 using std::cout;
@@ -69,6 +70,19 @@ class SimpleOptimization : public GeometricOptimization {
    */
   double _degreeOfSymmetry = 0.0;
 
+  /**
+   * @brief The angle at a bifurcation is the angle between
+   * the descendent segments.
+   * 
+   */
+  double _minimumAngle = 0.0;
+
+  /**
+   * @brief The angle at a bifurcation is the angle between
+   * the descendent segments.
+   * 
+   */  double _maximumAngle = M_PI;
+  
  public:
   /**
    * @brief Construct a new Simple Optimization object.
@@ -94,6 +108,30 @@ class SimpleOptimization : public GeometricOptimization {
   SimpleOptimization(Domain *domain, TreeModel *tree,
                      TargetFunction *targetFunction, int intervalDivision,
                      double degreeOfSymmetry);
+  
+  /**
+   * @brief Construct a new Simple Optimization object.
+   * 
+   * @param domain The domain where the tree grows.
+   * @param tree The tree.
+   * @param targetFunction The target function to be evaluated. 
+   * @param intervalDivision The number of interval subdivisions for evaluate.
+   * @param degreeOfSymmetry The minimum degree of symmetry allowed on 
+   * bifurcations.
+   * @param minimumAngle The minimum angle allowed between two descendents.
+   * @param maximumAngle The maximum angle allowed between two descendents.
+   */
+  SimpleOptimization(Domain *domain, TreeModel *tree,
+                     TargetFunction *targetFunction, int intervalDivision,
+                     double degreeOfSymmetry,
+		     double minimumAngle,
+		     double maximumAngle);
+  /**
+   * @brief Destroy the Simple Optimization object.
+   * 
+   */
+
+
   /**
    * @brief Destroy the Simple Optimization object.
    * 
