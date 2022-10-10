@@ -92,7 +92,10 @@ int main(int argc, char *argv[]) {
     stageCoefficient,
     targetPerfusionFlow,
     radiusExpoent,
-    lengthExpoent
+    lengthExpoent,
+    0.0,
+    M_PI/8.0,
+    M_PI
   );
 
   /* Grow the tree: */

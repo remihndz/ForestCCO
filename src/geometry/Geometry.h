@@ -56,7 +56,7 @@ class Geometry {
    * @brief The tolerance constant.
    * 
    */
-  const double _TOLERANCE = 1e-6;
+  const double _TOLERANCE = 1e-10;
 
   /**
    * @brief Evaluate the Euclidian distance between points A and B.

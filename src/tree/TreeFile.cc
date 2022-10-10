@@ -86,6 +86,63 @@ void TreeFile::save(string filename) {
                  << _tree->radius(segment->right()) << endl;
       }
     }
+
+    // Added by me
+    treefile << endl;
+    treefile << "SCALARS Flow double" << endl;
+    treefile << "LOOKUP_TABLE default" << endl;
+    treefile << _tree->flow() << endl;
+    for (i = _tree->begin(); i < _tree->end(); i++) {
+      segment = _tree->segment(i);
+      if (!_tree->isTerminal(i)) {
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->segment(segment->left())->flow() << endl;
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->segment(segment->right())->flow() << endl;
+      }
+    }
+
+    // 1 for inlet, -1 for outlet, 0 otherwise
+    treefile << endl;
+    treefile << "SCALARS Boundary int" << endl;
+    treefile << "LOOKUP_TABLE default" << endl;
+    treefile << 1 << endl;
+    for (i = _tree->begin(); i < _tree->end(); i++) {
+      segment = _tree->segment(i);
+      if (!_tree->isTerminal(i)) {
+	treefile << ((_tree->isTerminal(segment->left())) ? -1 : 0) << endl;
+	treefile << ((_tree->isTerminal(segment->right())) ? -1 : 0) << endl;
+      }
+    }
+    
+    treefile << endl;
+    treefile << "SCALARS bifurcation int" << endl;
+    treefile << "LOOKUP_TABLE default" << endl;
+    treefile << _tree->level(_tree->root().ID()) << endl;
+    for (i = _tree->begin(); i < _tree->end(); i++) {
+      segment = _tree->segment(i);
+      if (!_tree->isTerminal(i)) {
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->level(segment->left()) << endl;
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->level(segment->right()) << endl;
+      }
+    }
+    treefile << endl;
+    treefile << "SCALARS strahler int" << endl;
+    treefile << "LOOKUP_TABLE default" << endl;
+    treefile << _tree->strahlerOrder(_tree->root().ID()) << endl;
+    for (i = _tree->begin(); i < _tree->end(); i++) {
+      segment = _tree->segment(i);
+      if (!_tree->isTerminal(i)) {
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->strahlerOrder(segment->left()) << endl;
+	treefile << std::setprecision(numeric_limits<double>::digits10)
+		 << _tree->strahlerOrder(segment->right()) << endl;
+      }
+    }
+    // End of section added by me
+
     treefile.close();
   } else {
     cout << "Unable to open: \"" << filename << "\"." << endl;
